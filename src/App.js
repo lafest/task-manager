@@ -1,11 +1,12 @@
 import React from 'react'
+import MainPage from './mainPage'
 
 const App = () => {
   return (
     <div>
-      empty
+      <MainPage />
     </div>
-  );
+  )
 }
 
 export default App
