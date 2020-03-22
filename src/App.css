@@ -1,0 +1,66 @@
+h1 {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.complete {
+  text-decoration: line-through;
+  color: grey;
+}
+
+.mainPage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: solid 2px green;
+  width: 550px;
+}
+
+.todoList {
+  border: solid black 1px;
+  width: 500px;
+  margin: 10px;
+  padding: 10px;
+}
+
+.todoItem {
+  border: solid skyblue 1px;
+  margin: 10px;
+  display: flex;
+  justify-content: space-between;
+  max-width: 100%;
+  background-color: rgb(223, 236, 241);
+}
+
+.editItem {
+  border: solid 1px skyblue;
+  padding: 10px;
+  margin: 10px;
+  background-color: rgb(223, 236, 241);
+}
+
+.addTask {
+  display: flex;
+  flex-direction: column;
+  width: 250px;
+  background-color: rgb(223, 236, 241);
+  border: solid 1px skyblue;
+  margin-top: 10px;
+}
+
+.ellipsisText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spread {
+  white-space: normal;
+  word-wrap: break-word;
+}

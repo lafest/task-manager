@@ -3,21 +3,27 @@ import TodoItem from './todoItem'
 
 export default class TodoList extends React.Component {
 
+  state = { dragItemHere: false }
+
   onDragOver = (e) => {
     e.preventDefault();
+    if(!this.state.dragItemHere) this.setState({dragItemHere: true})
+  }
+
+  onDragLeave = (e) => {
+    e.preventDefault()
+    if(this.state.dragItemHere) this.setState({dragItemHere: false})
   }
 
   onDrop = (ev, destList) => {
+    this.setState({dragItemHere: false})
     const id = ev.dataTransfer.getData("id")
     const listName = ev.dataTransfer.getData("listName")
-    console.log(listName)
     if (endList.includes(listName) || (endList.includes(this.props.listName) && priorityList.includes(listName)))
-      console.log('cannot move end between priority')
-    else {
-      console.log(this.props.listName[5])
+      alert('그렇게 움직일 수 없어요.')
+    else if(this.props.listName !== listName) {
       this.props.patchTask(id, { priority: Number(this.props.listName[5]) })
     }
-    console.log('ondrop')
   }
 
 
@@ -27,10 +33,13 @@ export default class TodoList extends React.Component {
 
   render() {
     const listName = this.props.listName
+    const dragItemHere = this.state.dragItemHere
     return (
       <div
-        style={{ border: 'solid black 1px', width: '500px', margin: '10px', padding: '10px' }}
+        className='todoList'
+        style={{ backgroundColor: dragItemHere? 'whitesmoke': 'white' }}
         onDragOver={(e) => this.onDragOver(e)}
+        onDragLeave={(e)=>this.onDragLeave(e)}
         onDrop={(e) => this.onDrop(e, listName)}>
         {this.props.listName}
         {this.props.list.length === 0 &&

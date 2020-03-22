@@ -1,13 +1,12 @@
 import React from 'react'
-import { Header, Footer, Board } from './components'
+import { Header, Board } from './components'
 
 const MainPage = () => {
   return (
-    <>
+    <div className='mainPage'>
       <Header />
       <Board />
-      <Footer />
-    </>
+    </div>
   )
 }
 

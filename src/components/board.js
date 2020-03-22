@@ -136,7 +136,10 @@ class Board extends React.Component {
       else if (b === '기한이 지난 일들') return 1
       else if (a === '끝!') return 1
       else if (b === '끝!') return -1
+      else if (list[a].length === 0 && list[b].length === 0) return a[5]-b[5]
       else if (list[a].length === 0 || list[b].length === 0) return list[b].length - list[a].length
+      else if (list[a][0].isCompleted===true) return 1
+      else if (list[b][0].isCompleted===true) return -1
       else {
         const dueA = new Date(list[a][0].due)
         const dueB = new Date(list[b][0].due)
@@ -151,12 +154,12 @@ class Board extends React.Component {
           <button onClick={this.toggleAddTask}>{this.state.add ? '접기' : '추가'}</button>
           <br />
           {this.state.add &&
-            <AddTask postTask={this.postTask} />
+            <AddTask postTask={this.postTask} toggleAddTask={this.toggleAddTask} />
           }
 
         </span>
         <br />
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', border: 'solid 2px green' }}>
+        <div className='board'>
           {category.filter(v => !(v === _category[0] && list[v].length === 0)).map((v, i) => {
             return (
               <TodoList
