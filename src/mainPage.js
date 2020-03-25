@@ -3,7 +3,7 @@ import { Header, Board } from './components'
 
 const MainPage = () => {
   return (
-    <div className='mainPage'>
+    <div>
       <Header />
       <Board />
     </div>
