@@ -7,26 +7,51 @@ import { backend, initialData } from '../config.js'
 
 const Container = styled.div`
   display: flex;
-  flex-direction: column;
 `
 
 
 export default class Board extends React.Component {
 
-  deleteTask = (taskInfo, listName) => {
-    axios.delete(backend + 'tasks/' + taskInfo._id)
+  deleteTask = (id) => {
+    axios.delete(backend + 'tasks/' + id)
+      .then((response) => response.data.task)
+      .then((task) => {
+        let tasks = this.state.tasks
+        let columns = this.state.columns
+        Object.keys(columns).map(v=> {
+          delete columns[v].taskIds[task._id]
+        })
+        delete tasks[task._id]
+        this.setState({ tasks, columns })
+      })
+      .then(() => this.reorderBoard())
+      .then(() => console.log(this.state))
   }
 
-  
+
   patchTask = (id, patch) => {
-    console.log(typeof patch.priority)
     axios.patch(backend + 'tasks/' + id, patch)
-      .then((response) => console.log(response))
+      .then((response) => response.data.task)
+      .then((task) => {
+        let tasks = this.state.tasks
+        tasks[task._id] = task
+        this.setState({ tasks })
+      })
+      .then(() => this.reorderBoard())
+      .then(() => console.log('here'))
   }
 
   postTask = (taskInfo) => {
     axios.post(backend + 'tasks', taskInfo)
-      .then((response) => console.log(response))
+      .then(response => response.data.task)
+      .then((task) => {
+        console.log(task)
+        let tasks = this.state.tasks
+        tasks[task._id] = task
+        this.setState({ tasks }, () => console.log(this.state))
+      })
+      .then(() => this.reorderBoard())
+      .then(() => console.log('here'))
   }
 
 
@@ -46,7 +71,46 @@ export default class Board extends React.Component {
         columns[tasks[v].priority].taskIds.push(v)
       }))
       .then(() => this.setState({ tasks, columns }))
+      .then(() => this.reorderBoard())
   }
+
+
+  componentShouldUpdate(prevProps, prevState) {
+    if (prevState.columns !== this.state.columns) {console.log(this.state);return true}
+    else return false
+  }
+  
+
+  reorderBoard = () => {
+    let tasks = this.state.tasks
+    let columns = {}
+    const todayMid = new Date(new Date(Date.now()).setHours(0, 0, 0, 0))
+    console.log(todayMid)
+
+    Object.keys(this.state.columns).map(v => {
+      const origin = this.state.columns[v]
+      columns[v] = { ...origin, taskIds: [] }
+    })
+
+    Object.keys(tasks).forEach((v) => {
+      if (new Date(new Date(tasks[v].due) - 60000 * 540) < todayMid) {
+        if (tasks[v].isCompleted) columns['end'].taskIds.push(v)
+        else columns['overdue'].taskIds.push(v)
+      }
+      else {
+        columns[tasks[v].priority].taskIds.push(v)
+      }
+    })
+
+    Object.keys(columns).map((v) => {
+      columns[v].taskIds.sort((a, b) => {
+        if (tasks[a].isCompleted || tasks[b].isCompleted) return tasks[a].isCompleted - tasks[b].isCompleted
+        else return new Date(tasks[a].due) - new Date(tasks[b].due)
+      })
+    })
+    this.setState({ tasks, columns }, console.log(this.state))
+  }
+
 
 
   onDragStart = () => {
@@ -116,7 +180,7 @@ export default class Board extends React.Component {
         [newFinish.id]: newFinish
       }
     }
-    this.setState(newState,()=>this.patchTask(draggableId,{priority: Number(finish.id)}))
+    this.setState(newState, () => this.patchTask(draggableId, { priority: Number(finish.id) }))
   }
 
 
@@ -130,9 +194,9 @@ export default class Board extends React.Component {
         <Container>
           {this.state.columnOrder.map((columnID) => {
             const column = this.state.columns[columnID]
-            const tasks = column.taskIds.map(taskId => this.state.tasks[taskId])
+            const tasks = column.taskIds.filter(taskId=>this.state.tasks[taskId]!==undefined).map(taskId => this.state.tasks[taskId])
 
-            return <Column key={column.id} column={column} tasks={tasks} />
+            return <Column key={column.id} column={column} tasks={tasks} deleteTask={this.deleteTask} patchTask={this.patchTask} postTask={this.postTask} />
           })}
         </Container>
       </DragDropContext>

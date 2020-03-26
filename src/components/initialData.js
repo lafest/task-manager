@@ -1,9 +1,5 @@
 const initialData = {
   tasks: {
-    'task-1': { id: 'task-1', content: 'aaaa' },
-    'task-2': { id: 'task-2', content: 'bbbaafdsafdsafdsafdsafdsafdsafdsb' },
-    'task-3': { id: 'task-3', content: 'cccc' },
-    'task-4': { id: 'task-4', content: 'dddd' },
   },
   columns: {
     'overdue': {

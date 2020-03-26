@@ -12,62 +12,73 @@ import {
   TextField,
   Radio,
   RadioGroup,
-  FormControl,
   FormControlLabel,
   FormLabel
 } from '@material-ui/core';
 
+import { Edit, Delete } from '@material-ui/icons'
+
 
 const Container = styled.div`
-  background-color: white;
   border: 1px solid lightgrey;
   border-radius: 2px;
   padding: 8px;
   margin-bottom: 8px;
   background-color: 'white';
+  position: relative;
+  background-color: whitesmoke;
 
-  display: flex;
-`
 
-const Handle = styled.div`
-  width: 20px;
-  height: 20px;
-  background-color: orange;
-  border-radius: 4px;
-  margin-right: 8px;
 `
 
 const Description = styled.div`
-    flex-grow: 1;
     overflow: hidden;
     word-wrap: break-word;
 `
 
 const Due = styled.div`
   white-space: nowrap;
-  background-color: skyblue
+  padding: 10px;
+  background-color: skyblue;
+  position: relative;
+`
+
+const Option = styled.div`
+  position: absolute;
+  top: 15px;
+  right: 5px;
 `
 
 export default class Task extends React.Component {
 
   state = {
-    open: false, patch: {
-      description: '',
-      priority: '1',
-      due: ''
+    open: false,
+    hover: false,
+    patch: {
+      description: this.props.task.description,
+      priority: String(this.props.task.priority), // 이거 숫자로 바꿔서 보내줘야함
+      due: this.props.task.due
     }
   }
 
-  onChange = (e) => {
+  onCheck = (e) => {
     console.log(this.props)
+    console.log(e.target.checked)
+    this.props.patchTask(this.props.task._id, { isCompleted: e.target.checked })
   }
 
   onClickEdit = (e) => {
     e.preventDefault()
     const { patch } = this.state
+    this.props.patchTask(this.props.task._id, { ...patch, priority: Number(patch.priority) })
+    this.setState({open:false})
     console.log(patch)
   }
 
+  onClickDelete = (e) => {
+    e.preventDefault()
+    this.props.deleteTask(this.props.task._id)
+  }
 
 
 
@@ -83,17 +94,26 @@ export default class Task extends React.Component {
             {...provided.draggableProps}
             ref={provided.innerRef}
             isDragging={snapshot.isDragging}
+            {...provided.dragHandleProps}
+            onMouseEnter={e => this.setState({ hover: true })}
+            onMouseLeave={e => this.setState({ hover: false })}
           >
-            <Handle {...provided.dragHandleProps} />
-            <Checkbox checked={this.props.task.isCompleted} onChange={this.onChange} />
+            <Checkbox checked={this.props.task.isCompleted} onChange={this.onCheck} />
+            {this.state.hover &&
+              <Option>
+                <Edit onClick={(e) => this.setState({ open: true })} />
+                <Delete onClick={(e) => this.onClickDelete(e)} />
+              </Option>}
             <Description>{this.props.task.description}</Description>
-            <Due>due : {this.props.task.due.substring(0, 10) + ' ' + this.props.task.due.substring(11, 16)}</Due>
+            <br />
+            <Due>Due : {this.props.task.due.substring(0, 10) + ' ' + this.props.task.due.substring(11, 16)}</Due>
 
 
             <Dialog open={this.state.open}>
               <DialogTitle>할 일 수정</DialogTitle>
               <DialogContent>
                 <TextField
+                  defaultValue={this.state.patch.description}
                   autoFocus={true}
                   margin="dense"
                   id="name"
@@ -102,21 +122,19 @@ export default class Task extends React.Component {
                   placeholder={this.props.task.description}
                   onChange={(e) => this.setState({ patch: { ...this.state.patch, description: e.target.value } })}
                 />
-                <FormControl component="fieldset">
-                  <FormLabel component="legend">우선순위</FormLabel>
-                  <RadioGroup row value={this.state.patch.priority} onChange={(e) => this.setState({ patch: { ...this.state.patch, priority: e.target.value } })}>
-                    <FormControlLabel value='1' control={<Radio />} label="1" />
-                    <FormControlLabel value='2' control={<Radio />} label="2" />
-                    <FormControlLabel value='3' control={<Radio />} label="3" />
-                    <FormControlLabel value='4' control={<Radio />} label="4" />
-                    <FormControlLabel value='5' control={<Radio />} label="5" />
-                  </RadioGroup>
-                </FormControl>
+                <FormLabel >우선순위</FormLabel>
+                <RadioGroup row value={this.state.patch.priority} onChange={(e) => this.setState({ patch: { ...this.state.patch, priority: e.target.value } })}>
+                  <FormControlLabel value='1' control={<Radio />} label="1" />
+                  <FormControlLabel value='2' control={<Radio />} label="2" />
+                  <FormControlLabel value='3' control={<Radio />} label="3" />
+                  <FormControlLabel value='4' control={<Radio />} label="4" />
+                  <FormControlLabel value='5' control={<Radio />} label="5" />
+                </RadioGroup>
                 <TextField
                   id="datetime-local"
                   label="마감일"
                   type="datetime-local"
-                  defaultValue="2017-05-24T10:30"
+                  defaultValue={this.props.task.due.substring(0, 19)}
                   onChange={(e) => this.setState({ patch: { ...this.state.patch, due: e.target.value } })}
                 />
               </DialogContent>
@@ -125,8 +143,6 @@ export default class Task extends React.Component {
                 <Button onClick={() => this.setState({ open: false })}>닫기</Button>
               </DialogActions>
             </Dialog>
-
-
           </Container>
         )}
       </Draggable>
