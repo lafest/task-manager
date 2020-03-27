@@ -8,9 +8,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
-  FormControlLabel,
-  FormLabel
+  TextField
 } from '@material-ui/core'
 
 const Container = styled.div`

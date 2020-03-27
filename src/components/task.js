@@ -39,12 +39,6 @@ const Description = styled.div`
   `}
 `
 
-const Due = styled.div`
-  white-space: nowrap;
-  padding: 8px;
-  background-color: skyblue;
-`
-
 const Option = styled.div`
   position: absolute;
   bottom: 0px;
