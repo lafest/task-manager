@@ -28,30 +28,33 @@ const Container = styled.div`
   position: relative;
   background-color: whitesmoke;
 
-
 `
 
 const Description = styled.div`
-    overflow: hidden;
-    word-wrap: break-word;
+  overflow: hidden;
+  word-wrap: break-word;
+  ${ ({ isCompleted }) => isCompleted && `
+    text-decoration: line-through;
+    color: grey;
+  `}
 `
 
 const Due = styled.div`
   white-space: nowrap;
-  padding: 10px;
+  padding: 8px;
   background-color: skyblue;
-  position: relative;
 `
 
 const Option = styled.div`
   position: absolute;
-  top: 15px;
+  bottom: 0px;
   right: 5px;
 `
 
 export default class Task extends React.Component {
 
   state = {
+    visible: true,
     open: false,
     hover: false,
     patch: {
@@ -62,8 +65,6 @@ export default class Task extends React.Component {
   }
 
   onCheck = (e) => {
-    console.log(this.props)
-    console.log(e.target.checked)
     this.props.patchTask(this.props.task._id, { isCompleted: e.target.checked })
   }
 
@@ -71,13 +72,17 @@ export default class Task extends React.Component {
     e.preventDefault()
     const { patch } = this.state
     this.props.patchTask(this.props.task._id, { ...patch, priority: Number(patch.priority) })
-    this.setState({open:false})
-    console.log(patch)
+    this.setState({ open: false })
   }
 
   onClickDelete = (e) => {
     e.preventDefault()
-    this.props.deleteTask(this.props.task._id)
+    this.setState({ visible: false })
+    const sto = setTimeout(() => {
+      this.props.deleteTask(this.props.task._id)
+    }, 500)
+
+    return ()=>clearTimeout(sto)
   }
 
 
@@ -90,24 +95,28 @@ export default class Task extends React.Component {
         index={this.props.index}
       >
         {(provided, snapshot) => (
+
           <Container
+            className={this.state.visible ? '' : 'delete'}
             {...provided.draggableProps}
             ref={provided.innerRef}
             isDragging={snapshot.isDragging}
             {...provided.dragHandleProps}
-            onMouseEnter={e => this.setState({ hover: true })}
+            onMouseOver={e => this.setState({ hover: true })}
             onMouseLeave={e => this.setState({ hover: false })}
           >
-            <Checkbox checked={this.props.task.isCompleted} onChange={this.onCheck} />
+
+            <FormControlLabel
+              control={<Checkbox checked={this.props.task.isCompleted} onChange={this.onCheck} name="checkedA" />}
+              label={'Due : ' + this.props.task.due.substring(0, 10) + ' ' + this.props.task.due.substring(11, 16)}
+            />
+
             {this.state.hover &&
               <Option>
                 <Edit onClick={(e) => this.setState({ open: true })} />
                 <Delete onClick={(e) => this.onClickDelete(e)} />
               </Option>}
-            <Description>{this.props.task.description}</Description>
-            <br />
-            <Due>Due : {this.props.task.due.substring(0, 10) + ' ' + this.props.task.due.substring(11, 16)}</Due>
-
+            <Description isCompleted={this.props.task.isCompleted} >{this.props.task.description}</Description>
 
             <Dialog open={this.state.open}>
               <DialogTitle>할 일 수정</DialogTitle>

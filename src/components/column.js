@@ -8,14 +8,14 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  RadioGroup,
-  Radio,
   TextField,
   FormControlLabel,
   FormLabel
 } from '@material-ui/core'
 
 const Container = styled.div`
+  min-height: 100px;
+  height: auto;
   margin: 8px;
   border: 1px solid lightgrey;
   border-radius: 5px;
@@ -25,7 +25,6 @@ const Container = styled.div`
 
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
 `
 const Title = styled.h3`
   text-align : center;
@@ -41,15 +40,14 @@ export default class Column extends React.Component {
   state = {
     open: false, add: {
       description: '',
-      priority: 1,
       due: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().substring(0, 16)
     }
   }
 
   onClickAdd = (e) => {
     e.preventDefault()
-    this.props.postTask({ ...this.state.add, priority: Number(this.state.add.priority) })
-    this.setState({ open: false, add: { description: '', priority: 1, due: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().substring(0, 16) } })
+    this.props.postTask({ ...this.state.add, priority: Number(this.props.column.id) })
+    this.setState({ open: false, add: { description: '', due: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().substring(0, 16) } })
   }
 
   render() {
@@ -86,14 +84,6 @@ export default class Column extends React.Component {
                     placeholder='할 일'
                     onChange={(e) => this.setState({ add: { ...this.state.add, description: e.target.value } })}
                   />
-                  <FormLabel >우선순위</FormLabel>
-                  <RadioGroup row value={String(this.state.add.priority)} onChange={(e) => this.setState({ add: { ...this.state.add, priority: Number(e.target.value) } })}>
-                    <FormControlLabel value='1' control={<Radio />} label="1" />
-                    <FormControlLabel value='2' control={<Radio />} label="2" />
-                    <FormControlLabel value='3' control={<Radio />} label="3" />
-                    <FormControlLabel value='4' control={<Radio />} label="4" />
-                    <FormControlLabel value='5' control={<Radio />} label="5" />
-                  </RadioGroup>
                   <TextField
                     id="datetime-local"
                     label="마감일"
@@ -103,7 +93,7 @@ export default class Column extends React.Component {
                   />
                 </DialogContent>
                 <DialogActions>
-                  <Button onClick={(e) => this.onClickAdd(e)}>추가</Button>
+                  <Button variant='contained' color="primary" onClick={(e) => this.onClickAdd(e)}>추가</Button>
                   <Button onClick={() => this.setState({ open: false })}>닫기</Button>
                 </DialogActions>
               </Dialog>

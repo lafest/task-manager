@@ -64,3 +64,20 @@ h1 {
   white-space: normal;
   word-wrap: break-word;
 }
+
+
+@keyframes delete {
+  from {
+      opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.delete {
+  animation-name: delete;
+  animation-duration: 0.2s;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
